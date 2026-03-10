@@ -41,7 +41,7 @@ model GroupMember {
   id        String   @id @default(cuid())
   groupId   String
   userId    String
-  role      GroupRole @default(MEMBER)
+  role      String @default("MEMBER")
   joinedAt  DateTime @default(now())
 
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
@@ -63,7 +63,7 @@ model Round {
   id          String      @id @default(cuid())
   groupId     String
   promptId    String
-  status      RoundStatus @default(ACTIVE)
+  status      String @default("ACTIVE")
   closesAt    DateTime
   revealedAt  DateTime?
   createdAt   DateTime    @default(now())
