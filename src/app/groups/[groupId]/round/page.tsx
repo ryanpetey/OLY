@@ -22,19 +22,7 @@ export default async function CurrentRoundPage({ params }: { params: { groupId: 
     orderBy: { createdAt: "desc" }
   });
 
-  if (!round) {
-    const latestRound = await prisma.round.findFirst({
-      where: { groupId: params.groupId },
-      orderBy: { createdAt: "desc" }
-    });
-
-    if (latestRound?.status === "REVEALED") {
-      redirect(`/groups/${params.groupId}/round/reveal`);
-    }
-
-    redirect(`/groups/${params.groupId}`);
-  }
-
+  if (!round) notFound();
   const myResponse = round.responses[0];
 
   return (
