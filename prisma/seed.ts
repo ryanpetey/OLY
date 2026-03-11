@@ -57,7 +57,7 @@ const prompts = [
 
 async function main() {
   await prisma.prompt.createMany({
-    data: prompts
+    data: prompts,
   });
 
   console.log(`Seeded ${prompts.length} prompts`);

@@ -28,11 +28,11 @@ model Group {
 }
 
 model GroupMember {
-  id       String   @id @default(cuid())
-  groupId  String
-  userId   String
-  role     String   @default("MEMBER")
-  joinedAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String @default("MEMBER")
+  joinedAt  DateTime @default(now())
 
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -50,17 +50,17 @@ model Prompt {
 }
 
 model Round {
-  id         String   @id @default(cuid())
-  groupId    String
-  promptId   String
-  status     String   @default("ACTIVE")
-  closesAt   DateTime
-  revealedAt DateTime?
-  createdAt  DateTime @default(now())
+  id          String      @id @default(cuid())
+  groupId     String
+  promptId    String
+  status      String @default("ACTIVE")
+  closesAt    DateTime
+  revealedAt  DateTime?
+  createdAt   DateTime    @default(now())
 
-  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  prompt    Prompt     @relation(fields: [promptId], references: [id])
-  responses Response[]
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  prompt      Prompt      @relation(fields: [promptId], references: [id])
+  responses   Response[]
 
   @@index([groupId, status])
 }
