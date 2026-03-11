@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,7 +11,7 @@ export default async function CurrentRoundPage({ params }: { params: { groupId: 
   const member = await prisma.groupMember.findUnique({
     where: { groupId_userId: { groupId: params.groupId, userId: session.user.id } }
   });
-  if (!member) redirect("/groups");
+  if (!member) notFound();
 
   const round = await prisma.round.findFirst({
     where: { groupId: params.groupId, status: "ACTIVE" },

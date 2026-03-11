@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { createInvite } from "@/app/actions";
 import { Shell } from "@/components/shell";
@@ -14,7 +14,7 @@ export default async function GroupDashboard({ params }: { params: { groupId: st
   const membership = await prisma.groupMember.findUnique({
     where: { groupId_userId: { groupId: params.groupId, userId: session.user.id } }
   });
-  if (!membership) redirect("/groups");
+  if (!membership) notFound();
 
   const group = await prisma.group.findUnique({
     where: { id: params.groupId },
@@ -29,7 +29,7 @@ export default async function GroupDashboard({ params }: { params: { groupId: st
     }
   });
 
-  if (!group) redirect("/groups");
+  if (!group) notFound();
   const latestRound = group.rounds[0];
 
   if (!latestRound) {

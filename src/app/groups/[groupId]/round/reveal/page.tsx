@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { maybeRevealRound } from "@/app/actions";
 import { Shell } from "@/components/shell";
 import { auth } from "@/lib/auth";
@@ -11,7 +11,7 @@ export default async function RevealPage({ params }: { params: { groupId: string
   const member = await prisma.groupMember.findUnique({
     where: { groupId_userId: { groupId: params.groupId, userId: session.user.id } }
   });
-  if (!member) redirect("/groups");
+  if (!member) notFound();
 
   const round = await prisma.round.findFirst({
     where: { groupId: params.groupId },

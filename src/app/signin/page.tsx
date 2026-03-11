@@ -1,17 +1,11 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 
-export default function SignInPage({ searchParams }: { searchParams?: { callbackUrl?: string } }) {
+export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const callbackUrl = useMemo(() => {
-    const url = searchParams?.callbackUrl;
-    if (url && url.startsWith("/")) return url;
-    return "/groups";
-  }, [searchParams?.callbackUrl]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,14 +16,14 @@ export default function SignInPage({ searchParams }: { searchParams?: { callback
     const email = String(form.get("email") ?? "");
     const name = String(form.get("name") ?? "");
 
-    const result = await signIn("credentials", { email, name, redirect: false, callbackUrl });
+    const result = await signIn("credentials", { email, name, redirect: false, callbackUrl: "/groups" });
     if (!result || result.error) {
       setError("We couldn't sign you in. Check your details and try again.");
       setLoading(false);
       return;
     }
 
-    window.location.href = result.url ?? callbackUrl;
+    window.location.href = result.url ?? "/groups";
   }
 
   return (
