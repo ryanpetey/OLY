@@ -1,17 +1,14 @@
 # Testing Notes
 
-## Final-submit routing regression checklist
+## Two-user post-submit routing regression check
 
-1. Sign in as User A and create a group.
-2. Copy invite link and join as User B in a separate browser/session.
-3. User A answers first, User B answers second.
-4. Verify the second submit redirects to `/groups/[groupId]/round/reveal`.
-5. Repeat with reversed order: User B answers first, User A answers second.
-6. Verify the second submit again redirects to `/groups/[groupId]/round/reveal`.
-7. In both orders, verify neither user sees a 404 and both can open:
-   - `/groups/[groupId]`
-   - `/groups/[groupId]/round`
-   - `/groups/[groupId]/round/reveal`
+1. Sign in as User 1 and create a group.
+2. Copy the invite link from the group dashboard.
+3. In a separate browser/session, sign in as User 2 and join using the invite link.
+4. Open the current round as User 1 and submit a response.
+5. Open the current round as User 2 and submit a response.
+6. Confirm User 2 is redirected to `/groups/[groupId]/round/reveal` (not a 404 group page).
+7. Confirm visiting `/groups/[groupId]` as either member still loads and links to reveal for the completed round.
 
 ## Stale session check after local DB reset
 

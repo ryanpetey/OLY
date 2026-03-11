@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id                 String        @id @default(cuid())
-  email              String        @unique
-  name               String
-  createdAt          DateTime      @default(now())
-  memberships        GroupMember[]
-  responses          Response[]
+  id          String        @id @default(cuid())
+  email       String        @unique
+  name        String
+  createdAt   DateTime      @default(now())
+  memberships       GroupMember[]
+  responses         Response[]
   inviteLinksCreated InviteLink[]
 }
 
@@ -28,52 +28,52 @@ model Group {
 }
 
 model GroupMember {
-  id       String   @id @default(cuid())
-  groupId  String
-  userId   String
-  role     String   @default("MEMBER")
-  joinedAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String @default("MEMBER")
+  joinedAt  DateTime @default(now())
 
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, userId])
 }
 
 model Prompt {
-  id            String   @id @default(cuid())
-  text          String
-  category      String
-  intimacyLevel Int
-  createdAt     DateTime @default(now())
-  rounds        Round[]
+  id             String   @id @default(cuid())
+  text           String
+  category       String
+  intimacyLevel  Int
+  createdAt      DateTime @default(now())
+  rounds         Round[]
 }
 
 model Round {
-  id         String   @id @default(cuid())
-  groupId    String
-  promptId   String
-  status     String   @default("ACTIVE")
-  closesAt   DateTime
-  revealedAt DateTime?
-  createdAt  DateTime @default(now())
+  id          String      @id @default(cuid())
+  groupId     String
+  promptId    String
+  status      String @default("ACTIVE")
+  closesAt    DateTime
+  revealedAt  DateTime?
+  createdAt   DateTime    @default(now())
 
-  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  prompt    Prompt     @relation(fields: [promptId], references: [id])
-  responses Response[]
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  prompt      Prompt      @relation(fields: [promptId], references: [id])
+  responses   Response[]
 
   @@index([groupId, status])
 }
 
 model Response {
-  id        String   @id @default(cuid())
-  roundId   String
-  userId    String
-  body      String
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  roundId     String
+  userId      String
+  body        String
+  createdAt   DateTime @default(now())
 
-  round Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  round       Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([roundId, userId])
 }
@@ -86,6 +86,6 @@ model InviteLink {
   expiresAt   DateTime?
   createdAt   DateTime @default(now())
 
-  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  createdBy User  @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 }

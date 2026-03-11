@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { createInvite } from "@/app/actions";
 import { Shell } from "@/components/shell";
@@ -14,7 +14,7 @@ export default async function GroupDashboard({ params }: { params: { groupId: st
   const membership = await prisma.groupMember.findUnique({
     where: { groupId_userId: { groupId: params.groupId, userId: session.user.id } }
   });
-  if (!membership) redirect("/groups");
+  if (!membership) notFound();
 
   const group = await prisma.group.findUnique({
     where: { id: params.groupId },
@@ -22,33 +22,18 @@ export default async function GroupDashboard({ params }: { params: { groupId: st
       members: { include: { user: true }, orderBy: { joinedAt: "asc" } },
       inviteLinks: { orderBy: { createdAt: "desc" }, take: 1 },
       rounds: {
+        where: { status: "ACTIVE" },
         take: 1,
-        orderBy: { createdAt: "desc" },
         include: { responses: true, prompt: true }
       }
     }
   });
 
-  if (!group) redirect("/groups");
-  const latestRound = group.rounds[0];
+  if (!group) notFound();
+  const round = group.rounds[0];
+  if (!round) notFound();
 
-  if (!latestRound) {
-    return (
-      <Shell>
-        <section className="space-y-4">
-          <div className="card space-y-2">
-            <h1 className="text-2xl font-semibold">{group.name}</h1>
-            <p className="text-sm text-ink/70">{group.description || "A private space for slow, thoughtful sharing."}</p>
-            <p className="text-sm text-ink/60">No rounds yet. Create the first prompt round.</p>
-          </div>
-        </section>
-      </Shell>
-    );
-  }
-
-  const answeredIds = new Set(latestRound.responses.map((response) => response.userId));
-  const roundHref =
-    latestRound.status === "REVEALED" ? `/groups/${group.id}/round/reveal` : `/groups/${group.id}/round`;
+  const answeredIds = new Set(round.responses.map((response) => response.userId));
 
   return (
     <Shell>
@@ -56,13 +41,9 @@ export default async function GroupDashboard({ params }: { params: { groupId: st
         <div className="card space-y-2">
           <h1 className="text-2xl font-semibold">{group.name}</h1>
           <p className="text-sm text-ink/70">{group.description || "A private space for slow, thoughtful sharing."}</p>
-          <p className="text-xs text-ink/60">
-            {latestRound.status === "ACTIVE"
-              ? `Current prompt closes ${formatDistanceToNow(latestRound.closesAt, { addSuffix: true })}.`
-              : "Current round has been revealed."}
-          </p>
-          <Link href={roundHref} className="inline-block rounded-xl bg-ink px-3 py-2 text-sm text-white">
-            {latestRound.status === "ACTIVE" ? "Open current round" : "Open reveal"}
+          <p className="text-xs text-ink/60">Current prompt closes {formatDistanceToNow(round.closesAt, { addSuffix: true })}.</p>
+          <Link href={`/groups/${group.id}/round`} className="inline-block rounded-xl bg-ink px-3 py-2 text-sm text-white">
+            Open current round
           </Link>
         </div>
 

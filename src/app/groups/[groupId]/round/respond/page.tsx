@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { submitResponse } from "@/app/actions";
 import { Shell } from "@/components/shell";
 import { auth } from "@/lib/auth";
@@ -8,29 +8,13 @@ export default async function SubmitResponsePage({ params }: { params: { groupId
   const session = await auth();
   if (!session?.user?.id) redirect("/signin");
 
-  const membership = await prisma.groupMember.findUnique({
-    where: { groupId_userId: { groupId: params.groupId, userId: session.user.id } }
-  });
-  if (!membership) redirect("/groups");
-
   const round = await prisma.round.findFirst({
     where: { groupId: params.groupId, status: "ACTIVE" },
     include: { prompt: true },
     orderBy: { createdAt: "desc" }
   });
 
-  if (!round) {
-    const latestRound = await prisma.round.findFirst({
-      where: { groupId: params.groupId },
-      orderBy: { createdAt: "desc" }
-    });
-
-    if (latestRound?.status === "REVEALED") {
-      redirect(`/groups/${params.groupId}/round/reveal`);
-    }
-
-    redirect(`/groups/${params.groupId}`);
-  }
+  if (!round) notFound();
 
   return (
     <Shell>
