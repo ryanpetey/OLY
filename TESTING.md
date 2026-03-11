@@ -9,8 +9,3 @@
 5. Open the current round as User 2 and submit a response.
 6. Confirm User 2 is redirected to `/groups/[groupId]/round/reveal` (not a 404 group page).
 7. Confirm visiting `/groups/[groupId]` as either member still loads and links to reveal for the completed round.
-
-## Stale session check after local DB reset
-
-- If the local SQLite DB is reset while a browser session cookie still exists, joining a group should not surface raw Prisma FK errors.
-- Expected behavior: server action recovers by recreating/reconciling the user from session data when possible, or redirects to `/signin`/`/groups` gracefully.

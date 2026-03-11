@@ -95,8 +95,12 @@ export async function submitResponse(groupId: string, roundId: string, formData:
     create: { roundId, userId: user.id, body }
   });
 
-  await maybeRevealRound(groupId, roundId);
-  redirect(`/groups/${groupId}`);
+  const status = await maybeRevealRound(groupId, roundId);
+  if (status === "REVEALED") {
+    redirect(`/groups/${groupId}/round/reveal`);
+  }
+
+  redirect(`/groups/${groupId}/round`);
 }
 
 export async function maybeRevealRound(groupId: string, roundId: string) {
@@ -107,15 +111,24 @@ export async function maybeRevealRound(groupId: string, roundId: string) {
     prisma.round.findUnique({ where: { id: roundId } })
   ]);
 
-  if (!round || round.status === "REVEALED") return;
+  if (!round) return null;
+  if (round.status === "REVEALED") return "REVEALED";
+
   const deadlinePassed = round.closesAt <= new Date();
   if (responseCount >= memberCount || deadlinePassed) {
     await prisma.round.update({
       where: { id: roundId },
       data: { status: "REVEALED", revealedAt: new Date() }
     });
+
+    revalidatePath(`/groups/${groupId}`);
+    revalidatePath(`/groups/${groupId}/round`);
+    revalidatePath(`/groups/${groupId}/round/reveal`);
+    return "REVEALED";
   }
 
   revalidatePath(`/groups/${groupId}`);
+  revalidatePath(`/groups/${groupId}/round`);
   revalidatePath(`/groups/${groupId}/round/reveal`);
+  return "ACTIVE";
 }

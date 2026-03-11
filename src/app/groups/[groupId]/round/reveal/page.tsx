@@ -14,17 +14,19 @@ export default async function RevealPage({ params }: { params: { groupId: string
   if (!member) notFound();
 
   const round = await prisma.round.findFirst({
-    where: { groupId: params.groupId, status: "ACTIVE" },
+    where: { groupId: params.groupId },
     include: {
       prompt: true,
-      responses: { include: { user: true }, orderBy: { createdAt: "asc" } }
+      responses: { include: { user: true }, orderBy: { createdAt: "asc" } },
+      group: { include: { members: true } }
     },
     orderBy: { createdAt: "desc" }
   });
 
-  if (!round) notFound();
+  if (!round) redirect(`/groups/${params.groupId}`);
 
-  await maybeRevealRound(params.groupId, round.id);
+  const status = round.status === "ACTIVE" ? await maybeRevealRound(params.groupId, round.id) : "REVEALED";
+
   const refreshed = await prisma.round.findUnique({
     where: { id: round.id },
     include: {
@@ -34,8 +36,8 @@ export default async function RevealPage({ params }: { params: { groupId: string
     }
   });
 
-  if (!refreshed) notFound();
-  const canReveal = refreshed.status === "REVEALED";
+  if (!refreshed) redirect(`/groups/${params.groupId}`);
+  const canReveal = status === "REVEALED" || refreshed.status === "REVEALED";
 
   return (
     <Shell>
